@@ -1,14 +1,21 @@
 #include <stdio.h>
+#include <time.h>
 
 #include "camera/camera.h"
+#include "framebuffer/framebuffer.h"
+#include "math/random/random.h"
 #include "world/world.h"
-#include "sphere/sphere.h"
+#include "math/sphere/sphere.h"
 #include "image/image.h"
 
 #define IMAGE_WIDTH 640
 #define IMAGE_HEIGHT 480
 
 int main() {
+	random_set_seed(time(NULL));
+
+	Framebuffer framebuffer = framebuffer_create(640, 480);
+
 	Camera* camera = camera_create(IMAGE_WIDTH, IMAGE_HEIGHT);
 	if (!camera) {
 		fprintf(stderr, "[ERROR] Failed to create camera!\n");
@@ -16,18 +23,19 @@ int main() {
 	}
 
 	World world = world_create();
+	world_add_sphere(&world, (Sphere) { (vec3) { 0.0f, 0.0f, -4.0f }, 1.0f });
+	world_add_sphere(&world, (Sphere) { (vec3) { 0.0f, -101.0f, -4.0f }, 100.0f });
 
-	Sphere sphere = sphere_create((vec3) { 0.0f, 0.0f, -1.0f }, 0.5f);
-	world_add_hittable(&world, sphere.hittable);
+	camera_render(camera, &framebuffer, &world);
 
-	camera_render(camera, &world);
-
-	if (!image_create_png("../output.png", camera->framebuffer, camera->framebuffer_width, camera->framebuffer_height)) {
+	if (!image_create_png("../output.png", &framebuffer)) {
 		fprintf(stderr, "[ERROR] Failed to export image!\n");
 		return 0;
 	}
 
+	world_destroy(&world);
 	camera_destroy(camera);
+	framebuffer_destroy(&framebuffer);
 
 	return 0;
 }

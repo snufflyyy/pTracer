@@ -4,7 +4,7 @@
 
 typedef struct Viewport {
 	vec2 size;
-	vec2 pixel_delta;
+	vec2 delta;
 	vec2 first_pixel;
 } Viewport;
 

@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <float.h>
 
 typedef uint8_t u8;
 typedef uint16_t u16;
@@ -17,4 +18,7 @@ typedef int32_t i32;
 typedef int64_t i64;
 
 typedef float f32;
+#define F32_MIN FLT_MIN
+#define F32_MAX FLT_MAX
+
 typedef double f64;

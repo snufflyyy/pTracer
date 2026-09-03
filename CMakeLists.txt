@@ -14,15 +14,21 @@ add_executable(
   ${PROJECT_NAME}
   src/main.c
 
+  src/math/random/random.c
   src/math/vec3/vec3.c
+  src/math/vec2/vec2.c
   src/math/ray/ray.c
+  src/math/sphere/sphere.c
 
   src/color/color.c
+  src/framebuffer/framebuffer.c
+  src/image/image.c
 
-  src/world/world.c
-  src/sphere/sphere.c
   src/camera/camera.c
   src/viewport/viewport.c
 
-  src/image/image.c
+  src/world/world.c
+  src/world/objects/objects.c
+  src/world/objects/sphere/sphere.c
+
 )
