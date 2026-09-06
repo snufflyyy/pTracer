@@ -7,4 +7,5 @@ typedef struct Color {
 } Color;
 
 Color color_scale(Color color, f32 scalar);
+Color color_mul(Color a, Color b);
 Color color_add(Color a, Color b);

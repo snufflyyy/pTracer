@@ -20,19 +20,17 @@ Camera* camera_create(u32 width, u32 height) {
 		goto error;
 	}
 
-	camera->sample_count = 10;
-
 	camera->position = (vec3) { 0.0f, 0.0f, 0.0f };
 	camera->focal_length = 1.0f;
 
 	camera->viewport = viewport_create(width, height);
 
+	camera->sample_count = 10;
+
 	return camera;
 
 error:
-	if (camera) {
-		free(camera);
-	}
+	if (camera) { free(camera); }
 	return NULL;
 }
 
@@ -46,14 +44,15 @@ void camera_render(Camera* camera, Framebuffer* framebuffer, World* world) {
 				vec3 direction = vec3_sub((vec3) { pixel_location.x, pixel_location.y, -camera->focal_length }, camera->position);
 				Ray ray = (Ray) { camera->position, direction };
 
-				usize i = y * framebuffer->width + x;
+				usize i = (y * framebuffer->width + x);
 				framebuffer->pixels[i] = color_add(framebuffer->pixels[i], world_cast_ray(world, &ray, 0));
 			}
 		}
 	}
 
+	f32 sample_count_scale = 1.0f / camera->sample_count;
 	for (usize i = 0; i < framebuffer->pixels_length; i++) {
-		framebuffer->pixels[i] = color_scale(framebuffer->pixels[i], 1.0f / camera->sample_count);
+		framebuffer->pixels[i] = color_scale(framebuffer->pixels[i], sample_count_scale);
 	}
 }
 

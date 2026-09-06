@@ -12,6 +12,8 @@ World world_create() {
 
 	world.max_ray_bounces = 10;
 
+	world.sky_color = WORLD_DEFAULT_SKY_COLOR;
+
 	return world;
 }
 
@@ -29,11 +31,12 @@ void world_add_sphere(World* world, Sphere sphere) {
 	world->objects_count++;
 }
 
+
 Color world_cast_ray(World* world, Ray* ray, u32 bounces) {
 	if (bounces >= world->max_ray_bounces) { return (Color) { 0.0f, 0.0f, 0.0f }; }
 
-	f32 closest_t = FLT_MAX;
 	RayHit closest_hit = {0};
+	f32 closest_t = FLT_MAX;
 
 	for (usize i = 0; i < world->objects_count; i++) {
 		RayHit rayhit = world->objects[i]->ray_hit(world->objects[i], ray, 0.001f, closest_t);
@@ -51,7 +54,7 @@ Color world_cast_ray(World* world, Ray* ray, u32 bounces) {
 	// sky
 	vec3 direction_normalized = vec3_normalized(ray->direction);
 	f32 a = 0.5f * (direction_normalized.y + 1.0f);
-	return color_add(color_scale((Color) { 1.0f, 1.0f, 1.0f }, (1.0f - a)), color_scale((Color) { 0.3f, 0.5f, 1.0f }, a));
+	return color_add(color_scale((Color) { 1.0f, 1.0f, 1.0f }, (1.0f - a)), color_scale(world->sky_color, a));
 }
 
 void world_destroy(World* world) {

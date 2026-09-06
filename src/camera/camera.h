@@ -7,12 +7,11 @@
 #include "framebuffer/framebuffer.h"
 
 typedef struct Camera {
-	u32 sample_count;
-
 	vec3 position;
 	f32 focal_length;
-
 	Viewport viewport;
+
+	u32 sample_count;
 } Camera;
 
 Camera* camera_create(u32 framebuffer_width, u32 framebuffer_height);
