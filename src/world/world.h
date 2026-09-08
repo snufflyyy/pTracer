@@ -22,5 +22,5 @@ World world_create();
 
 void world_add_sphere(World* world, Sphere sphere);
 
-Color world_cast_ray(World* world, Ray* ray, u32 bounces);
+Color world_cast_ray(World* world, Ray* ray, u64* state, u32 bounces);
 void world_destroy(World* world);

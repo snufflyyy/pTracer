@@ -32,7 +32,7 @@ void world_add_sphere(World* world, Sphere sphere) {
 }
 
 
-Color world_cast_ray(World* world, Ray* ray, u32 bounces) {
+Color world_cast_ray(World* world, Ray* ray, u64* state, u32 bounces) {
 	if (bounces >= world->max_ray_bounces) { return (Color) { 0.0f, 0.0f, 0.0f }; }
 
 	RayHit closest_hit = {0};
@@ -47,8 +47,8 @@ Color world_cast_ray(World* world, Ray* ray, u32 bounces) {
 	}
 
 	if (closest_hit.hit) {
-		Ray ray = (Ray) { closest_hit.hit_position, vec3_add(closest_hit.normal, random_vec3_normalized()) };
-		return color_scale(world_cast_ray(world, &ray, bounces + 1), 0.5f);
+		Ray ray = (Ray) { closest_hit.hit_position, vec3_add(closest_hit.normal, random_vec3_normalized(state)) };
+		return color_scale(world_cast_ray(world, &ray, state, bounces + 1), 0.5f);
 	}
 
 	// sky

@@ -30,5 +30,6 @@ add_executable(
   src/world/world.c
   src/world/objects/objects.c
   src/world/objects/sphere/sphere.c
-
 )
+
+target_link_libraries(${PROJECT_NAME} PRIVATE m)
