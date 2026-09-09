@@ -29,3 +29,7 @@ inline vec3 vec3_sub(vec3 a, vec3 b) {
 inline vec3 vec3_scale(vec3 a, f32 scalar) {
 	return (vec3) { a.x * scalar, a.y * scalar, a.z * scalar };
 }
+
+inline vec3 vec3_reflect(vec3 a, vec3 normal) {
+	return vec3_sub(a, vec3_scale(normal, 2.0f * vec3_dot(a, normal)));
+}

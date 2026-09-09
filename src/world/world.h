@@ -7,6 +7,7 @@
 #include "math/sphere/sphere.h"
 
 #define WORLD_MAX_OBJECTS_COUNT 100
+#define WORLD_MAX_RAY_BOUNCES 10
 #define WORLD_DEFAULT_SKY_COLOR (Color) { 0.3f, 0.5f, 1.0f }
 
 typedef struct World {
@@ -20,7 +21,7 @@ typedef struct World {
 
 World world_create();
 
-void world_add_sphere(World* world, Sphere sphere);
+void world_add_sphere(World* world, Sphere sphere, Material* material);
 
 Color world_cast_ray(World* world, Ray* ray, u64* state, u32 bounces);
 void world_destroy(World* world);

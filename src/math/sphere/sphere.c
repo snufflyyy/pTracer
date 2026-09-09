@@ -25,6 +25,7 @@ RayHit sphere_ray_hit(Sphere* sphere, Ray* ray, f32 t_min, f32 t_max) {
 	}
 
 	rayhit.hit = true;
+	rayhit.ray = *ray;
 	rayhit.t = root;
 	rayhit.hit_position = ray_at(ray, rayhit.t);
 	rayhit.normal = vec3_scale(vec3_sub(rayhit.hit_position, sphere->position), 1.0f / sphere->radius);

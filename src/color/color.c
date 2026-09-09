@@ -5,7 +5,7 @@ inline Color color_scale(Color color, f32 scalar) {
 }
 
 inline Color color_mul(Color a, Color b) {
-	return (Color) { a.red + b.red, a.green + b.green, a.red + b.red };
+	return (Color) { a.red * b.red, a.green * b.green, a.blue * b.blue };
 }
 
 inline Color color_add(Color a, Color b) {

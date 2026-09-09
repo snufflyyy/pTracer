@@ -1,10 +1,10 @@
 #include "camera.h"
 
-#include <bits/pthreadtypes.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "base-types.h"
 #include "color/color.h"
@@ -15,7 +15,7 @@
 #include "math/random/random.h"
 #include "world/world.h"
 
-Camera* camera_create(u32 width, u32 height) {
+Camera* camera_create(u32 framebuffer_width, u32 framebuffer_height, f32 fov) {
 	Camera* camera = (Camera*) malloc(sizeof(Camera));
 	if (!camera) {
 		fprintf(stderr, "[ERROR] [Camera] Failed to allocate memory for camera!\n");
@@ -23,11 +23,8 @@ Camera* camera_create(u32 width, u32 height) {
 	}
 
 	camera->position = (vec3) { 0.0f, 0.0f, 0.0f };
-	camera->focal_length = 1.0f;
 
-	camera->viewport = viewport_create(width, height);
-
-	camera->sample_count = CAMERA_DEFAULT_SAMPLE_COUNT;
+	camera->viewport = viewport_create(framebuffer_width, framebuffer_height, fov);
 
 	return camera;
 
@@ -40,6 +37,7 @@ struct CameraRenderWorkerContext {
     CameraRenderWorker* worker;
 
     Camera* camera;
+    u32 sample_count;
     World* world;
 
     Framebuffer* framebuffer;
@@ -69,18 +67,20 @@ void* camera_render_worker_work(void* context_ptr) {
 
         worker->work_i = job_i;
 
-        f32 sample_scale = 1.0f / context->camera->sample_count;
+        f32 sample_scale = 1.0f / context->sample_count;
 
   		for (usize y = context->work[worker->work_i].framebuffer_section.start_y; y < context->work[worker->work_i].framebuffer_section.end_y; y++) {
  			for (usize x = context->work[worker->work_i].framebuffer_section.start_x; x < context->work[worker->work_i].framebuffer_section.end_x; x++) {
                 Color accumulated_color = (Color) { 0.0f, 0.0f, 0.0f };
 
-                for (usize s = 0; s < context->camera->sample_count; s++) {
+                for (usize s = 0; s < context->sample_count; s++) {
                     vec2 random_offset = (vec2) { (random_f32(&context->state) - 0.5f), (random_f32(&context->state) - 0.5f) };
                     vec2 pixel_offset = (vec2) { ((x + random_offset.x) * context->camera->viewport.delta.x), ((y + random_offset.y) * context->camera->viewport.delta.y) };
                     vec2 pixel_location = vec2_add(context->camera->viewport.first_pixel, pixel_offset);
 
-                    vec3 direction = vec3_sub((vec3) { pixel_location.x, pixel_location.y, -context->camera->focal_length }, context->camera->position);
+                    vec3 pixel_position = vec3_add(context->camera->position, (vec3) { pixel_location.x, pixel_location.y, -1.0f });
+
+                    vec3 direction = vec3_sub(pixel_position, context->camera->position);
                     Ray ray = (Ray) { context->camera->position, direction };
 
                     accumulated_color = color_add(accumulated_color, world_cast_ray(context->world, &ray, &context->state, 0));
@@ -94,7 +94,11 @@ void* camera_render_worker_work(void* context_ptr) {
     return NULL;
 }
 
-void camera_render(Camera* camera, Framebuffer* framebuffer, World* world, u32 thread_count) {
+void camera_render(Camera* camera, Framebuffer* framebuffer, World* world, u32 sample_count, u32 thread_count) {
+	struct timespec start, end;
+
+	clock_gettime(CLOCK_MONOTONIC, &start);
+
     u32 tile_size = CAMERA_STARTING_TILE_SIZE;
     u32 target_tiles_per_worker = thread_count * CAMERA_TARGET_TILES_PER_WORKER;
 
@@ -151,7 +155,7 @@ void camera_render(Camera* camera, Framebuffer* framebuffer, World* world, u32 t
 
     for (usize i = 0; i < thread_count; i++) {
         u64 state = time(NULL) * (88172645463325252ULL + i); // probably find a like correct way of doing this
-        contexts[i] = (struct CameraRenderWorkerContext) { &workers[i], camera, world, framebuffer, work, work_length, &next_work_i, state, &mutex };
+        contexts[i] = (struct CameraRenderWorkerContext) { &workers[i], camera, sample_count, world, framebuffer, work, work_length, &next_work_i, state, &mutex };
         workers[i].work_i = i;
         pthread_create(&workers[i].thread, NULL, camera_render_worker_work, &contexts[i]); // error check this
     }
@@ -164,6 +168,11 @@ void camera_render(Camera* camera, Framebuffer* framebuffer, World* world, u32 t
 	free(contexts);
 	free(workers);
 	free(work);
+
+	clock_gettime(CLOCK_MONOTONIC, &end);
+
+	f64 elapsed = (f64) (end.tv_sec - start.tv_sec) + (f64) (end.tv_nsec - start.tv_nsec) / 1e9;
+	printf("[INFO] [Camera] Render took %.2f seconds!\n", elapsed);
 }
 
 void camera_destroy(Camera* camera) {

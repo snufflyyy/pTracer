@@ -15,3 +15,5 @@ f32 vec3_dot(vec3 a, vec3 b);
 vec3 vec3_add(vec3 a, vec3 b);
 vec3 vec3_sub(vec3 a, vec3 b);
 vec3 vec3_scale(vec3 a, f32 scalar);
+
+vec3 vec3_reflect(vec3 a, vec3 normal);

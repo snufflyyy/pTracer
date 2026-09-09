@@ -18,18 +18,24 @@ add_executable(
   src/math/vec3/vec3.c
   src/math/vec2/vec2.c
   src/math/ray/ray.c
+  src/math/angle/angle.c
   src/math/sphere/sphere.c
 
   src/color/color.c
-  src/framebuffer/framebuffer.c
-  src/image/image.c
 
-  src/camera/camera.c
+  src/materials/diffuse/diffuse.c
+  src/materials/metal/metal.c
+
+  src/framebuffer/framebuffer.c
+
   src/viewport/viewport.c
+  src/camera/camera.c
 
   src/world/world.c
   src/world/objects/objects.c
   src/world/objects/sphere/sphere.c
+
+  src/image/image.c
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE m)

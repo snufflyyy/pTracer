@@ -8,4 +8,4 @@ typedef struct Viewport {
 	vec2 first_pixel;
 } Viewport;
 
-Viewport viewport_create(u32 framebuffer_width, u32 framebuffer_height);
+Viewport viewport_create(u32 framebuffer_width, u32 framebuffer_height, f32 fov);
